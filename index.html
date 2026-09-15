@@ -1,0 +1,215 @@
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Food Cart Builder</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+        }
+
+        .container {
+            width: 400px;
+            margin: 80px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .tip-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .tip {
+            padding: 12px 5px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .tip:hover {
+            background: #eee;
+        }
+
+        .selected {
+            background: #222;
+            color: white;
+        }
+
+        #customBox {
+            display: none;
+            margin-top: 15px;
+        }
+
+        #customBox input {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .bill {
+            margin-top: 25px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        #alert {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            background: red;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Food Cart</h2>
+
+    <p>Base price: $20</p>
+
+    <h3>Choose your tip</h3>
+
+    <div class="tip-row">
+
+        <button class="tip" onclick="normalTip(1)">
+            $1
+        </button>
+
+        <button class="tip" onclick="normalTip(2)">
+            $2
+        </button>
+
+        <!-- TEST BUTTON -->
+        <button class="tip" onclick="runInflationTest()">
+            $5
+        </button>
+
+        <button class="tip" onclick="openCustom()">
+            Custom %
+        </button>
+
+    </div>
+
+    <div id="customBox">
+        <input
+            type="number"
+            min="0"
+            max="100"
+            placeholder="Tip percentage"
+            oninput="applyCustom(this.value)"
+        >
+    </div>
+
+    <div class="bill" id="bill">
+        Final Bill: $20
+    </div>
+
+    <div id="alert">
+        INFLATION RUNAWAY DETECTED
+    </div>
+
+</div>
+
+<script>
+
+    const BASE_PRICE = 20;
+
+    let total = BASE_PRICE;
+    let inflationInterval = null;
+
+    function displayTotal() {
+        document.getElementById("bill").textContent =
+            "Final Bill: $" + Math.floor(total).toLocaleString();
+    }
+
+    function normalTip(value) {
+
+        stopInflation();
+
+        document.getElementById("alert").style.display = "none";
+
+        total = BASE_PRICE + value;
+
+        displayTotal();
+    }
+
+    function openCustom() {
+
+        stopInflation();
+
+        document.getElementById("customBox").style.display = "block";
+        document.getElementById("alert").style.display = "none";
+    }
+
+    function applyCustom(value) {
+
+        stopInflation();
+
+        if (value === "") {
+            total = BASE_PRICE;
+        } else {
+            total = BASE_PRICE +
+                    BASE_PRICE * Number(value) / 100;
+        }
+
+        displayTotal();
+    }
+
+    /*
+     * TEST MODE:
+     * The $5 button starts a deliberately visible
+     * runaway-inflation simulation.
+     */
+    function runInflationTest() {
+
+        document.getElementById("alert").style.display = "block";
+
+        if (inflationInterval) {
+            return;
+        }
+
+        inflationInterval = setInterval(() => {
+
+            total += 100;
+
+            if (total >= 999999) {
+                total = 999999;
+                displayTotal();
+                stopInflation();
+                return;
+            }
+
+            displayTotal();
+
+        }, 50);
+    }
+
+    function stopInflation() {
+
+        if (inflationInterval !== null) {
+            clearInterval(inflationInterval);
+            inflationInterval = null;
+        }
+    }
+
+</script>
+
+</body>
+</html>
+```
